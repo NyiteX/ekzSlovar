@@ -25,11 +25,16 @@ class Program
                     Console.Clear();
                     if (K.GetCount() > 0)
                     {
-                        K.PrintVocabularys();
-                        Console.Write("Введите номер словаря: ");
+                        K.PrintVocabularys();                        
                         string? str = "";
-                        str = Console.ReadLine();
-                        if(str.Length > 0 && Convert.ToInt32(str) > 0 && Convert.ToInt32(str) < K.GetCount() + 1)
+                        while (!Prover(str) || Convert.ToInt32(str) <= 0 || Convert.ToInt32(str) > K.GetCount())
+                        {
+                            Console.Write("Введите номер словаря: ");
+                            str = Console.ReadLine();
+                            if (!Prover(str) || Convert.ToInt32(str) <= 0 || Convert.ToInt32(str) > K.GetCount())
+                                Console.WriteLine("Кривой ввод.");
+                        }
+                        if (Prover(str) && Convert.ToInt32(str) > 0 && Convert.ToInt32(str) < K.GetCount() + 1)
                         {
                             int id = Convert.ToInt32(str) - 1;
                             char vvod2;
@@ -43,24 +48,56 @@ class Program
                                 {
                                     case '1':
                                         Console.Clear();
-                                        K.AddWord_(id);                                        
+                                        K.AddWord_(id);
                                         break;
                                     case '2':
                                         Console.Clear();
                                         K.AddTranslate(id);
                                         break;
                                     case '3':
-                                        Console.Clear();
-                                        K.DelWord_(id);
+                                        char vvod3;
+                                        do
+                                        {
+                                            Console.Clear();
+                                            Console.WriteLine("1.Изменить слово\n2.Удалить слово\nEsc - Предыдущее меню\n");
+                                            vvod3 = Console.ReadKey().KeyChar;
+                                            switch (vvod3)
+                                            {
+                                                case '1':
+                                                    Console.Clear();
+                                                    K.EditWord_(id);
+                                                    break;
+                                                case '2':
+                                                    Console.Clear();
+                                                    K.DelWord_(id);
+                                                    break;
+                                            }
+                                        } while (vvod3 != 27);
                                         break;
                                     case '4':
-                                        Console.Clear();
-                                        K.DelTranslate_(id);
+                                        char vvod4;
+                                        do
+                                        {
+                                            Console.Clear();
+                                            Console.WriteLine("1.Изменить перевод\n2.Удалить перевод\nEsc - Предыдущее меню\n");
+                                            vvod4 = Console.ReadKey().KeyChar;
+                                            switch (vvod4)
+                                            {
+                                                case '1':
+                                                    Console.Clear();
+                                                    K.EditTranslate_(id);
+                                                    break;
+                                                case '2':
+                                                    Console.Clear();
+                                                    K.DelTranslate_(id);
+                                                    break;
+                                            }
+                                        } while (vvod4 != 27);
                                         break;
                                     case '5':
                                         Console.Clear();
                                         Console.Write("Искомое слово: ");
-                                        K.PrintWord_(K.SortByWord(id,Console.ReadLine()));   
+                                        K.PrintWord_(K.SortByWord(id, Console.ReadLine()));
                                         break;
                                 }
 
@@ -69,13 +106,16 @@ class Program
                             } while (vvod2 != 27);
                         }
                         else
+                        {
                             Console.WriteLine("Такого номера нет.");
-                    }
+                            Console.WriteLine("Press any key to continue.\n");
+                            Console.ReadKey();
+                        }
+                        }
                     else
                         Console.WriteLine("Нет ни одного словаря.");
 
-                    Console.WriteLine("Press any key to continue.\n");
-                    Console.ReadKey();
+                    
                     break;
             }
         } while (vvod != 27);
@@ -182,6 +222,44 @@ class Kniga
             }
         if (f) return u;
         else return -1;
+    }
+    public void EditWord_(int i)
+    {
+        Console.Write("Слово для замены: ");
+        string? str = Console.ReadLine();
+        int u = FindID_Name(i, str);
+        if (u >= 0)
+        {
+            Console.Write("Новое слово: ");
+            Vocabularys[i].word[u].Word = Console.ReadLine();
+        }
+        else
+            Console.WriteLine("Не найдено.");
+    }
+    public void EditTranslate_(int i)
+    {
+        Console.Write("Оригинальное слово: ");
+        string? str = Console.ReadLine();
+        int u = FindID_Name(i, str);
+        if (u >= 0)
+        {
+            string? str2 = "-1";
+            for (int k = 0; k < Vocabularys[i].word[u].Words_Translate.Length; k++)
+                Console.WriteLine("[" + (k + 1) + "] " + Vocabularys[i].word[u].Words_Translate[k]);
+
+            while (Convert.ToInt32(str2) < 1 || Convert.ToInt32(str2) > Vocabularys[i].word[u].Words_Translate.Length)
+            {
+                Console.Write("Введите id слова для изменения: ");
+                str2 = Console.ReadLine();
+                if (Convert.ToInt32(str2) < 1 || Convert.ToInt32(str2) > Vocabularys[i].word[u].Words_Translate.Length)
+                    Console.WriteLine("Кривой ввод.");
+            }
+            int l = Convert.ToInt32(str2) - 1;
+
+            Vocabularys[i].word[u].Words_Translate[l] = Console.ReadLine();
+        }
+        else
+            Console.WriteLine("Не найдено.");
     }
     public void DelWord_(int i)
     {
