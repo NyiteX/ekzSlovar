@@ -1,15 +1,33 @@
-﻿using System.Data.Common;
-using System.Globalization;
-using System.Linq;
-using System.Net.Http.Json;
+﻿using System.Numerics;
 using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
+
 
 class Program
 {
     static void Main()
     {
+        string a = "aldad dad dadwad";
+        string[]split = a.Split(new char[] {});
+
+        a = "";
+        int kol = 0;
+        for (int i = 0; i < split.Length; i++)
+        {
+            if (split[i] == "dad" || split[i]=="aldad")
+            {
+                kol++;
+                split[i] = "";
+            }
+            else
+                a += split[i].ToString() + " ";
+            
+        }
+        Console.WriteLine(split.Length);
+        Array.Resize(ref split, split.Length - kol);
+        Console.WriteLine(split.Length);
+
+        Console.WriteLine("\n" + a);
+        Console.ReadKey();
         Kniga K = new();
 
         char vvod;
@@ -334,9 +352,18 @@ class Kniga
         try
         {
             using (FileStream f = new(p.Name + ".json", FileMode.Create))
-            {
+            {              
                 var op = new JsonSerializerOptions { WriteIndented = true };
-
+                //foreach (var v in p.word)
+                //{
+                //    string? str = "";
+                //    foreach(var v2 in v.Words_Translate)
+                //    {
+                //        str += v2.ToString() + " ";
+                //    }
+                //    Word_ folder = new(v.Word, str);
+                //    await JsonSerializer.SerializeAsync<Word_>(f, folder,op);
+                //}
                 foreach (var v in p.word)
                 {
                     await JsonSerializer.SerializeAsync(f, v, op);
@@ -348,18 +375,37 @@ class Kniga
     }
     public void LoadVocabulary(int id)
     {
+        //try
+        //{
+        //    using (FileStream f2 = new(Vocabularys[id].Name + ".json", FileMode.Open))
+        //    {
+        //        Word_ []A = JsonSerializer.Deserialize<Word_[]>(f2);
+        //        //for (int i = 0; i < Vocabularys[id].word.Length; i++)
+        //        //{
+
+        //        //    Console.WriteLine(Vocabularys[id].word[i].Word);
+        //        //    foreach (var s in Vocabularys[id].word[i].Words_Translate)
+        //        //        Console.WriteLine(s);
+        //        //}
+        //    }
+        //}
+        //catch (Exception e) { Console.WriteLine(e.Message); }
+
         try
         {
             using (FileStream f2 = new(Vocabularys[id].Name + ".json", FileMode.Open))
             {
-                    Vocabularys[id].word = JsonSerializer.Deserialize<Word_[]>(f2);
-
-                for (int i = 0; i < Vocabularys[id].word.Length; i++)
-                {
-                    Console.WriteLine(Vocabularys[id].word[i].Word);
-                    foreach (var s in Vocabularys[id].word[i].Words_Translate)
-                        Console.WriteLine(s);
-                }
+                string? s = JsonSerializer.Deserialize<string?>(f2);
+                Console.WriteLine(s);
+                //for (int i = 0; i < Vocabularys[id].word.Length; i++)
+                //{
+                //Word_? folder = JsonSerializer.Deserialize<Word_?>(f2);
+                //Console.WriteLine(folder.Word);
+                //foreach (var item in folder.Words_Translate)
+                //{
+                //    Console.WriteLine("tr " + item);
+                //}
+                //}
             }
         }
         catch (Exception e) { Console.WriteLine(e.Message); }
@@ -377,9 +423,9 @@ class Word_
     public string?[] Words_Translate;
     public string? Word { get; set; }
     public Word_() { Words_Translate = new string?[0]; }
-    public Word_(string? word, string?[] words_translate) 
+    public Word_(string? word, string? words_translate) 
     {
         Word = word;
-        Words_Translate = words_translate;
+        Words_Translate = words_translate.Split(new char[] { });
     }
 }
