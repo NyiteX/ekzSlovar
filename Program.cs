@@ -1,33 +1,9 @@
-﻿using System.Numerics;
-using System.Text.Json;
-
+﻿using System.Text.Json;
 
 class Program
 {
     static void Main()
     {
-        string a = "aldad dad dadwad";
-        string[]split = a.Split(new char[] {});
-
-        a = "";
-        int kol = 0;
-        for (int i = 0; i < split.Length; i++)
-        {
-            if (split[i] == "dad" || split[i]=="aldad")
-            {
-                kol++;
-                split[i] = "";
-            }
-            else
-                a += split[i].ToString() + " ";
-            
-        }
-        Console.WriteLine(split.Length);
-        Array.Resize(ref split, split.Length - kol);
-        Console.WriteLine(split.Length);
-
-        Console.WriteLine("\n" + a);
-        Console.ReadKey();
         Kniga K = new();
 
         char vvod;
@@ -65,8 +41,8 @@ class Program
                             do
                             {
                                 Console.Clear();
-                                Console.WriteLine("1.Добавить слово\n2.Добавить перевод слова\n3.Редактировать слово\n4.Редактировать перевод слова\n5.Найти перевод слова\n");
-                                Console.WriteLine("6.Запись в файл\n7.Загрузка из файла\nEsc - Предыдущее меню.\n");
+                                Console.WriteLine("1.Добавить слово\n2.Добавить перевод слова\n3.Редактировать слово\n4.Редактировать перевод слова\n5.Найти перевод слова");
+                                Console.WriteLine("6.Запись в файл\n7.Вывод всех слов.\n\nEsc - Предыдущее меню.\n");
                                 vvod2 = Console.ReadKey().KeyChar;
                                 switch (vvod2)
                                 {
@@ -129,7 +105,7 @@ class Program
                                         break;
                                     case '7':
                                         Console.Clear();
-                                        K.LoadVocabulary(id);
+                                        K.PrintAllWords(K.getVocabularys()[id]);
                                         break;
                                 }
                                 Console.WriteLine("Press any key to continue.\n");
@@ -204,8 +180,14 @@ class Kniga
     {       
         Array.Resize(ref Vocabularys, Vocabularys.Length + 1);
         Vocabularys[Vocabularys.Length - 1] = new();
-        Console.Write("Имя словаря: ");
-        Vocabularys[Vocabularys.Length - 1].Name = Console.ReadLine();
+        string? str = "";
+        while(str.Length < 1)
+        {
+            Console.Write("Имя словаря: ");
+            str = Console.ReadLine();
+            if (str.Length < 1) Console.WriteLine("Кривой ввод.");
+        }        
+        Vocabularys[Vocabularys.Length - 1].Name = str;
     }
     public void AddWord_(int i)
     {
@@ -354,16 +336,6 @@ class Kniga
             using (FileStream f = new(p.Name + ".json", FileMode.Create))
             {              
                 var op = new JsonSerializerOptions { WriteIndented = true };
-                //foreach (var v in p.word)
-                //{
-                //    string? str = "";
-                //    foreach(var v2 in v.Words_Translate)
-                //    {
-                //        str += v2.ToString() + " ";
-                //    }
-                //    Word_ folder = new(v.Word, str);
-                //    await JsonSerializer.SerializeAsync<Word_>(f, folder,op);
-                //}
                 foreach (var v in p.word)
                 {
                     await JsonSerializer.SerializeAsync(f, v, op);
@@ -373,42 +345,16 @@ class Kniga
         }
         catch (Exception e) { Console.WriteLine(e.Message); }
     }
-    public void LoadVocabulary(int id)
+    public void PrintAllWords(Vocabulary p)
     {
-        //try
-        //{
-        //    using (FileStream f2 = new(Vocabularys[id].Name + ".json", FileMode.Open))
-        //    {
-        //        Word_ []A = JsonSerializer.Deserialize<Word_[]>(f2);
-        //        //for (int i = 0; i < Vocabularys[id].word.Length; i++)
-        //        //{
-
-        //        //    Console.WriteLine(Vocabularys[id].word[i].Word);
-        //        //    foreach (var s in Vocabularys[id].word[i].Words_Translate)
-        //        //        Console.WriteLine(s);
-        //        //}
-        //    }
-        //}
-        //catch (Exception e) { Console.WriteLine(e.Message); }
-
-        try
+        foreach(var word in p.word)
         {
-            using (FileStream f2 = new(Vocabularys[id].Name + ".json", FileMode.Open))
-            {
-                string? s = JsonSerializer.Deserialize<string?>(f2);
-                Console.WriteLine(s);
-                //for (int i = 0; i < Vocabularys[id].word.Length; i++)
-                //{
-                //Word_? folder = JsonSerializer.Deserialize<Word_?>(f2);
-                //Console.WriteLine(folder.Word);
-                //foreach (var item in folder.Words_Translate)
-                //{
-                //    Console.WriteLine("tr " + item);
-                //}
-                //}
-            }
+            Console.Write("Слово: " + word.Word + "\nПеревод: ");
+            foreach(var v in word.Words_Translate)
+                Console.Write(v + " ");
+            Console.WriteLine('\n');
         }
-        catch (Exception e) { Console.WriteLine(e.Message); }
+        Console.WriteLine();
     }
 }
 class Vocabulary
