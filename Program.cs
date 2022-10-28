@@ -143,17 +143,6 @@ class Kniga
 {
     Vocabulary[] Vocabularys;
     public Kniga() { Vocabularys = new Vocabulary[0]; }
-    public bool Prover(string str)
-    {
-        if (str.Length > 0)
-        {
-            for (int i = 0; i < str.Length; i++)
-                if (!Char.IsDigit(str[i]))
-                    return false;
-            return true;
-        }
-        else return false;
-    }
     public Vocabulary[] getVocabularys() { return Vocabularys; }
     public void PrintVocabularys()
     {
