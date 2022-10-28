@@ -1,4 +1,10 @@
-﻿using System.Linq;
+﻿using System.Data.Common;
+using System.Globalization;
+using System.Linq;
+using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 class Program
 {
@@ -25,7 +31,7 @@ class Program
                     Console.Clear();
                     if (K.GetCount() > 0)
                     {
-                        K.PrintVocabularys();                        
+                        K.PrintVocabularys();
                         string? str = "";
                         while (!Prover(str) || Convert.ToInt32(str) <= 0 || Convert.ToInt32(str) > K.GetCount())
                         {
@@ -42,7 +48,7 @@ class Program
                             {
                                 Console.Clear();
                                 Console.WriteLine("1.Добавить слово\n2.Добавить перевод слова\n3.Редактировать слово\n4.Редактировать перевод слова\n5.Найти перевод слова\n");
-                                Console.WriteLine("Esc - Предыдущее меню.\n");
+                                Console.WriteLine("6.Запись в файл\n7.Загрузка из файла\nEsc - Предыдущее меню.\n");
                                 vvod2 = Console.ReadKey().KeyChar;
                                 switch (vvod2)
                                 {
@@ -99,8 +105,15 @@ class Program
                                         Console.Write("Искомое слово: ");
                                         K.PrintWord_(K.SortByWord(id, Console.ReadLine()));
                                         break;
+                                    case '6':
+                                        Console.Clear();
+                                        K.CreateFile(K.getVocabularys()[id]);
+                                        break;
+                                    case '7':
+                                        Console.Clear();
+                                        K.LoadVocabulary(id);
+                                        break;
                                 }
-
                                 Console.WriteLine("Press any key to continue.\n");
                                 Console.ReadKey();
                             } while (vvod2 != 27);
@@ -111,11 +124,9 @@ class Program
                             Console.WriteLine("Press any key to continue.\n");
                             Console.ReadKey();
                         }
-                        }
+                    }
                     else
                         Console.WriteLine("Нет ни одного словаря.");
-
-                    
                     break;
             }
         } while (vvod != 27);
@@ -318,16 +329,57 @@ class Kniga
                             select p;
         return sort;
     }
+    public async void CreateFile(Vocabulary p)
+    {        
+        try
+        {
+            using (FileStream f = new(p.Name + ".json", FileMode.Create))
+            {
+                var op = new JsonSerializerOptions { WriteIndented = true };
+
+                foreach (var v in p.word)
+                {
+                    await JsonSerializer.SerializeAsync(f, v, op);
+                    await JsonSerializer.SerializeAsync(f, v.Words_Translate, op);
+                }
+            }
+        }
+        catch (Exception e) { Console.WriteLine(e.Message); }
+    }
+    public void LoadVocabulary(int id)
+    {
+        try
+        {
+            using (FileStream f2 = new(Vocabularys[id].Name + ".json", FileMode.Open))
+            {
+                    Vocabularys[id].word = JsonSerializer.Deserialize<Word_[]>(f2);
+
+                for (int i = 0; i < Vocabularys[id].word.Length; i++)
+                {
+                    Console.WriteLine(Vocabularys[id].word[i].Word);
+                    foreach (var s in Vocabularys[id].word[i].Words_Translate)
+                        Console.WriteLine(s);
+                }
+            }
+        }
+        catch (Exception e) { Console.WriteLine(e.Message); }
+    }
 }
 class Vocabulary
 {
     public Word_[] word;
     public string?Name { get; set; }
     public Vocabulary() { word = new Word_[0]; }
+    public Vocabulary(string? name,Word_[] Word) { Name = name; word = Word; word = new Word_[0]; }
 }
 class Word_
 {
     public string?[] Words_Translate;
     public string? Word { get; set; }
     public Word_() { Words_Translate = new string?[0]; }
+    public Word_(string? word, string?[] words_translate) 
+    {
+        Word = word;
+        Words_Translate = words_translate;
+    }
 }
