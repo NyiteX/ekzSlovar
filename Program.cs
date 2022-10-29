@@ -138,7 +138,6 @@ class Program
         }
     }
 }
-
 class Kniga
 {
     Vocabulary[] Vocabularys;
